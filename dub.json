@@ -1,0 +1,12 @@
+{
+	"authors": [
+		"Sergei Giniatulin"
+	],
+	"copyright": "Copyright © 2024, Sergei Giniatulin",
+	"dependencies": {
+		"argparse": "~>1.3.0"
+	},
+	"description": "Split large directories into parts of a specified maximum size",
+	"license": "proprietary",
+	"name": "dirsplitter-d"
+}
