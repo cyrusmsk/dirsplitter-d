@@ -1,7 +1,7 @@
-module source.dirsplitter.reverse;
+module dirsplitter.reverse;
 
-import std.file : rename, isFile, isDir, DirEntry, dirEntries, SpanMode, FileException, rmdirRecurse;
-import std.path : chainPath, buildNormalizedPath, relativePath;
+import std.file : rename, isFile, isDir, DirEntry, dirEntries, SpanMode, FileException, rmdir;
+import std.path : chainPath, buildNormalizedPath, baseName;
 import std.regex : matchFirst, regex;
 import std.stdio : writeln;
 
@@ -22,7 +22,7 @@ void reverseSplitDir(string dir)
                 {
                     if (f.isFile)
                     {
-                        auto newPath = chainPath(buildNormalizedPath(dir), relativePath(f, partDir));
+                        auto newPath = chainPath(buildNormalizedPath(dir), baseName(f));
                         rename(f, newPath);
                     }
                 }
@@ -40,11 +40,11 @@ void reverseSplitDir(string dir)
         {
             try
             {
-                rmdirRecurse(part);
+                rmdir(part);
             }
             catch (FileException e)
             {
-                writeln(i"Failed to remove folder: $(part). $(e.message)".text);
+                writeln("Failed to remove folder: ", part, " ", e.message);
             }
         }
 }

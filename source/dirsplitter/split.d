@@ -1,16 +1,16 @@
 module dirsplitter.split;
 
 import std.stdio : writeln;
-import std.file : rename, dirEntries, DirEntry, SpanMode, isFile, getSize, FileException;
-import std.path : relativePath, chainPath, buildNormalizedPath;
+import std.file : exists, mkdir, rename, dirEntries, DirEntry, SpanMode, isFile, getSize, FileException;
+import std.path : baseName, chainPath, buildNormalizedPath;
 import std.array : byPair;
 import std.string : empty;
+import std.format : format;
 
 void splitDir(string dir, long maxSize, string prefix)
 {
-    writeln("\nSplitting Directory...\n\n");
+    writeln("\nSplitting Directory...\n");
 
-    // TODO: add confirmation message
     ulong[int] tracker;
     auto currentPart = 1;
     auto filesMoved = 0;
@@ -41,8 +41,11 @@ void splitDir(string dir, long maxSize, string prefix)
 
         try
         {
-            auto newPath = chainPath(buildNormalizedPath(dir, i`part$(currentPart)`.text), relativePath(de.name, dir));
-            rename(de.name, newPath);
+            string partNum = format("part%d", currentPart);
+            auto partDir = buildNormalizedPath(dir, partNum);
+            if (!partDir.exists)
+                partDir.mkdir;
+            rename(de.name, chainPath(partDir, baseName(buildNormalizedPath(de.name))));
             filesMoved++;
         }
         catch (FileException e)
