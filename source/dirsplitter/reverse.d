@@ -1,7 +1,9 @@
 module dirsplitter.reverse;
 
-import std.file : rename, isFile, isDir, DirEntry, dirEntries, SpanMode, FileException, rmdir;
-import std.path : chainPath, buildNormalizedPath, baseName;
+import std.file : rename, isFile, isDir,
+    DirEntry, dirEntries, SpanMode, exists,
+    FileException, mkdirRecurse, rmdirRecurse;
+import std.path : relativePath, absolutePath, buildNormalizedPath, dirName, baseName;
 import std.regex : matchFirst, regex;
 import std.stdio : writeln;
 
@@ -14,7 +16,7 @@ void reverseSplitDir(string dir)
     {
         foreach (DirEntry de; dirEntries(dir, SpanMode.depth))
         {
-            if (de.isDir && matchFirst(de.name, regex(`part\d+`)))
+            if (de.isDir && matchFirst(de.name, regex(`part\d+$`)))
             {
                 auto partDir = de.name;
                 partDirToDelete ~= partDir;
@@ -22,8 +24,12 @@ void reverseSplitDir(string dir)
                 {
                     if (f.isFile)
                     {
-                        auto newPath = chainPath(buildNormalizedPath(dir), baseName(f));
-                        rename(f, newPath);
+                        auto relPath = relativePath(absolutePath(f), absolutePath(partDir));
+                        auto relDir = dirName(relPath);
+                        auto newDir = buildNormalizedPath(dir, relDir);
+                        if (!exists(newDir))
+                            mkdirRecurse(newDir);
+                        rename(f.name, buildNormalizedPath(dir, relPath));
                     }
                 }
             }
@@ -40,7 +46,7 @@ void reverseSplitDir(string dir)
         {
             try
             {
-                rmdir(part);
+                rmdirRecurse(part);
             }
             catch (FileException e)
             {
