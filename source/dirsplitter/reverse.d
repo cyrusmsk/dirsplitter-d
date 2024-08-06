@@ -14,7 +14,7 @@ void reverseSplitDir(string dir)
 
     try
     {
-        foreach (DirEntry de; dirEntries(dir, SpanMode.depth))
+        foreach (DirEntry de; dirEntries(dir, SpanMode.shallow))
         {
             if (de.isDir && matchFirst(de.name, regex(`part\d+$`)))
             {
