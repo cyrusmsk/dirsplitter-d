@@ -9,7 +9,7 @@ import std.stdio : writeln;
 
 void reverseSplitDir(string dir)
 {
-    string[] partDirToDelete;
+    bool[string] partDirToDelete;
     bool shouldDelete = true;
 
     try
@@ -19,7 +19,7 @@ void reverseSplitDir(string dir)
             if (de.isDir && matchFirst(de.name, regex(`part\d+$`)))
             {
                 auto partDir = de.name;
-                partDirToDelete ~= partDir;
+                partDirToDelete[partDir] = true;
                 foreach (f; dirEntries(partDir, SpanMode.depth))
                 {
                     if (f.isFile)
@@ -42,7 +42,7 @@ void reverseSplitDir(string dir)
     }
 
     if (shouldDelete)
-        foreach (part; partDirToDelete)
+        foreach (part; partDirToDelete.keys)
         {
             try
             {
